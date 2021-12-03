@@ -32,7 +32,7 @@ class TurtleBot:
 		print('Initiliazing at x:{}, y:{}'.format(self.pos_x, self.pos_y))
 
 		self.distance_error = 0
-		self.previous_distance_error = 0 
+		self.previous_distance_error = 0
 		self.sum_distance_error = 0
 
 		self.angular_error = 0
@@ -60,7 +60,7 @@ class TurtleBot:
 		"""Euclidean distance between current pose and the goal."""
 		return sqrt(pow((goal_pose.x - self.pos_x), 2) + pow((goal_pose.y - self.pos_y), 2))
 
-	def linear_vel(self, goal_pose, k_p=0.2, k_i=0, k_d=0): 
+	def linear_vel(self, goal_pose, k_p=0.2, k_i=0, k_d=0):
 		# Store previous error in a variable
 		self.previous_distance_error = self.distance_error
 		# Update the distance error with respect to current pose
@@ -94,9 +94,12 @@ class TurtleBot:
 		# Get the input from the user.
 		goal_pose.x = float(input("Set your x goal: "))
 		goal_pose.y = float(input("Set your y goal: "))
-		k_p = float(input("Set constant for K_p: "))
-		k_i = float(input("Set constant for K_i: "))
-		k_d = float(input("Set constant for K_d: "))
+		link_p = float(input("Set constant for lin K_p: "))
+		link_i = float(input("Set constant for lin K_i: "))
+		link_d = float(input("Set constant for lin K_d: "))
+		angk_p = float(input("Set constant for ang K_p: "))
+		angk_i = float(input("Set constant for ang K_i: "))
+		angk_d = float(input("Set constant for ang K_d: "))
 
 		# Insert a number slightly greater than 0 (e.g. 0.01).
 		distance_tolerance = float(input("Set your tolerance for goal: "))
@@ -109,14 +112,14 @@ class TurtleBot:
 
 			if self.front_laser < 0.75:
 				print('Obstacle detected in front, modify code below to avoid collision')
-				vel_msg.linear.x = self.linear_vel(goal_pose, k_p, k_i, k_d)
-				vel_msg.angular.z = self.angular_vel(goal_pose, k_p, k_i, k_d)
+				vel_msg.linear.x = self.linear_vel(goal_pose, link_p*self.front_laser, link_i*self.front_laser, link_d*self.front_laser)
+				vel_msg.angular.z = self.angular_vel(goal_pose, angk_p*self.front_laser, angk_i*self.front_laser, angk_d*self.front_laser)
 			else:
 				# Linear velocity in the x-axis.
-				vel_msg.linear.x = self.linear_vel(goal_pose, k_p, k_i, k_d)
+				vel_msg.linear.x = self.linear_vel(goal_pose, link_p, link_i, link_d)
 
 				# Angular velocity in the z-axis.
-				vel_msg.angular.z = self.angular_vel(goal_pose, k_p, k_i, k_d)
+				vel_msg.angular.z = self.angular_vel(goal_pose, angk_p, angk_i, angk_d)
 
 			# Publishing our vel_msg
 			self.velocity_publisher.publish(vel_msg)
