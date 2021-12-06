@@ -29,6 +29,8 @@ class TurtleBot:
 		self.rate = rospy.Rate(10)
 		# We need a short pause to allow self.pose to suscribe from the topic and accurate display turtlebots pose
 		rospy.sleep(0.5)
+		self.pos_x = 0
+		self.pos_y = 0
 		print('Initiliazing at x:{}, y:{}'.format(self.pos_x, self.pos_y))
 
 		self.distance_error = 0
@@ -85,24 +87,24 @@ class TurtleBot:
 
 		return k_p*(self.angular_error) + k_i*(self.sum_angular_error) + k_d*(self.angular_error - self.previous_angular_error)
 
-	def move2goal(self):
+	def move2goal(self, x, y, xp, xi, xd, ap, ai, ad, finList):
 		"""Moves the turtlebot to the goal."""
 
 		# Creates a pose object
 		goal_pose = Pose()
 
 		# Get the input from the user.
-		goal_pose.x = float(input("Set your x goal: "))
-		goal_pose.y = float(input("Set your y goal: "))
-		link_p = float(input("Set constant for lin K_p: "))
-		link_i = float(input("Set constant for lin K_i: "))
-		link_d = float(input("Set constant for lin K_d: "))
-		angk_p = float(input("Set constant for ang K_p: "))
-		angk_i = float(input("Set constant for ang K_i: "))
-		angk_d = float(input("Set constant for ang K_d: "))
+		goal_pose.x = x
+		goal_pose.y = y
+		link_p = xp
+		link_i = xi
+		link_d = xd
+		angk_p = ap
+		angk_i = ai
+		angk_d = ad
 
 		# Insert a number slightly greater than 0 (e.g. 0.01).
-		distance_tolerance = float(input("Set your tolerance for goal: "))
+		distance_tolerance = 0.01#float(input("Set your tolerance for goal: "))
 
 		# Instantiate Twist object to send mesg to turtlebot
 		vel_msg = Twist()
@@ -134,6 +136,12 @@ class TurtleBot:
 
 		print('Arrived at location x:{}, y:{}'.format(self.pos_x, self.pos_y))
 
+def run(x,y,xp, xi, xd, ap, ai, ad, finList):
+	try:
+		x = TurtleBot()
+		x.move2goal(x,y,xp, xi, xd, ap, ai, ad, finList)
+	except rospy.ROSInterruptException:
+		pass
 if __name__ == '__main__':
 	try:
 		x = TurtleBot()
