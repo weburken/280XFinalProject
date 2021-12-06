@@ -29,7 +29,7 @@ class TurtleBot:
 		self.rate = rospy.Rate(10)
 		# We need a short pause to allow self.pose to suscribe from the topic and accurate display turtlebots pose
 		rospy.sleep(0.5)
-		self.pos_x = 0
+		self.pos_x = 0 #TODO: check if this does what I hope it does
 		self.pos_y = 0
 		print('Initiliazing at x:{}, y:{}'.format(self.pos_x, self.pos_y))
 
@@ -62,7 +62,7 @@ class TurtleBot:
 		"""Euclidean distance between current pose and the goal."""
 		return sqrt(pow((goal_pose.x - self.pos_x), 2) + pow((goal_pose.y - self.pos_y), 2))
 
-	def linear_vel(self, goal_pose, k_p=0.2, k_i=0, k_d=0):
+	def linear_vel(self, goal_pose, k_p, k_i, k_d):
 		# Store previous error in a variable
 		self.previous_distance_error = self.distance_error
 		# Update the distance error with respect to current pose
@@ -90,10 +90,8 @@ class TurtleBot:
 	def move2goal(self, x, y, xp, xi, xd, ap, ai, ad, finList):
 		start = time.time()
 		"""Moves the turtlebot to the goal."""
-
 		# Creates a pose object
 		goal_pose = Pose()
-
 		# Get the input from the user.
 		goal_pose.x = x
 		goal_pose.y = y
