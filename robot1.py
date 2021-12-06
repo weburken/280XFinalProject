@@ -9,7 +9,7 @@ from geometry_msgs.msg import Twist  # import geometry message package. Twist is
 from nav_msgs.msg import Odometry # import navigation message package. Odometry is the data type to extract turtlebot's position in quaternions
 import tf
 from tf.transformations import euler_from_quaternion #import transformation package, which allows us to convert from quaternions to eulerian coordinates
-
+import time
 class TurtleBot:
 
 	def __init__(self):
@@ -77,7 +77,7 @@ class TurtleBot:
 		angle = atan2(goal_pose.y - self.pos_y, goal_pose.x - self.pos_x)
 		return angle
 
-	def angular_vel(self, goal_pose, k_p=0.5, k_i=0, k_d=0):
+	def angular_vel(self, goal_pose, k_p, k_i, k_d):
 		# Store previous error in a variable
 		self.previous_angular_error = self.angular_error
 		# Update the distance error with respect to current pose
@@ -88,6 +88,7 @@ class TurtleBot:
 		return k_p*(self.angular_error) + k_i*(self.sum_angular_error) + k_d*(self.angular_error - self.previous_angular_error)
 
 	def move2goal(self, x, y, xp, xi, xd, ap, ai, ad, finList):
+		start = time.time()
 		"""Moves the turtlebot to the goal."""
 
 		# Creates a pose object
@@ -133,7 +134,8 @@ class TurtleBot:
 		vel_msg.linear.x = 0
 		vel_msg.angular.z = 0
 		self.velocity_publisher.publish(vel_msg)
-
+		end = time.time()
+		finList.append((end-start))
 		print('Arrived at location x:{}, y:{}'.format(self.pos_x, self.pos_y))
 
 def run(x,y,xp, xi, xd, ap, ai, ad, finList):
@@ -144,7 +146,12 @@ def run(x,y,xp, xi, xd, ap, ai, ad, finList):
 		pass
 if __name__ == '__main__':
 	try:
+		finList =[]
 		x = TurtleBot()
-		x.move2goal()
+		x.move2goal(5,5, 0.5, 0,0,0.2,0,0, finList)
+
+
+		x = TurtleBot()
+		x.move2goal(5,5, 0.5, 0,0,0.2,0,0, finList)
 	except rospy.ROSInterruptException:
 		pass
