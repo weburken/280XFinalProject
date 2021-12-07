@@ -29,8 +29,6 @@ class TurtleBot:
 		self.rate = rospy.Rate(10)
 		# We need a short pause to allow self.pose to suscribe from the topic and accurate display turtlebots pose
 		rospy.sleep(0.5)
-		self.pos_x = 0 #TODO: check if this does what I hope it does
-		self.pos_y = 0
 		print('Initiliazing at x:{}, y:{}'.format(self.pos_x, self.pos_y))
 
 		self.distance_error = 0
