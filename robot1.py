@@ -144,10 +144,8 @@ if __name__ == '__main__':
 	try:
 		finList =[]
 		x = TurtleBot()
-		x.move2goal(5,5, 0.5, 0,0,0.2,0,0, finList)
+		x.move2goal(5,5, 0.2, 0,0,0.8,0,0, finList)
 
 
-		x = TurtleBot()
-		x.move2goal(5,5, 0.5, 0,0,0.2,0,0, finList)
 	except rospy.ROSInterruptException:
 		pass
