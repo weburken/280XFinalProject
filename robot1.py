@@ -146,9 +146,6 @@ if __name__ == '__main__':
 		x = TurtleBot()
 		x.move2goal(3,5, 0.25, 0,0,5,0,10, finList)
 		x.move2goal(6,2, 0.25, 0,0,5,0,10, finList)
-		x.move2goal(4,7, 0.25, 0,0,5,0,10, finList)
-		x.move2goal(8,6, 0.25, 0,0,5,0,10, finList)
-
 
 	except rospy.ROSInterruptException:
 		pass
