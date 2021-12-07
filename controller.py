@@ -1,19 +1,25 @@
 import multiprocessing
 import time
-import robot1
+import os
 
 # Your foo function
-def foo(x,y,xp, xi, xd, ap, ai, ad, finList):
-    robot1.run(x,y,xp, xi, xd, ap, ai, ad, finList)
+def foo(n):
+    for i in range(10000 * n):
+        print( "Tick")
+        time.sleep(1)
 
 if __name__ == '__main__':
     # Start foo as a process
-    finList = []
+
+
+
+    os.system("roslaunch final_project main.launch")
+    print("DONE")
     x = 10
     y = 10
 
     #TEST: Below is testing material
-    p = multiprocessing.Process(target=foo, name="Foo", args=(x,y,0.5, 0, 0, 0.2, 0, 0, finList))
+    p = multiprocessing.Process(target=foo, name="Foo", args=(10,))
     p.start()
 
     p.join(20)
@@ -25,10 +31,10 @@ if __name__ == '__main__':
         # Terminate foo
         p.terminate()
         p.join()
-        finList.append(20)
+        #finList.append(20)
 
 
-    p = multiprocessing.Process(target=foo, name="Foo", args=(x,y,0.5, 0, 0, 0.2, 0, 0, finList))
+    p = multiprocessing.Process(target=foo, name="Foo", args=(10,))
     p.start()
 
     p.join(20)
@@ -40,10 +46,8 @@ if __name__ == '__main__':
         # Terminate foo
         p.terminate()
         p.join()
-        finList.append(20)
-
-    print(finList)
-    #TEST: Above is testing material
+        #finList.append(20)
+#TEST: Above is testing material
 
 
     """
