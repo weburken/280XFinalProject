@@ -25,6 +25,7 @@ class TurtleBot:
 
 		# Create a pose object attributed to turtlebot
 		self.odom = Odometry
+		self.goal_pose = Pose()
 		# Set the rate at which we publish/suscribe in Hz
 		self.rate = rospy.Rate(10)
 		# We need a short pause to allow self.pose to suscribe from the topic and accurate display turtlebots pose
@@ -84,20 +85,18 @@ class TurtleBot:
 		self.sum_angular_error += self.angular_error
 
 		return k_p*(self.angular_error) + k_i*(self.sum_angular_error) + k_d*(self.angular_error - self.previous_angular_error)
-	def update_Leadpose(data):#TODO: CHeck
+	def update_Leadpose(self, data):#TODO: CHeck
 		"""Callback function that is called when a new message of type Pose is received by the pose_subscriber."""
-		goal_pose.x = data.x 
-		goal.pose.y = data.y 
+		self.goal_pose.x = round(data.odom.pose.pose.position.x, 4)
+		self.goal.pose.y = round(data.odom.pose.pose.position.y, 4)
 
 
 	def move2goal(self, x, y, xp, xi, xd, ap, ai, ad, finList):
 		start = time.time()
 		"""Moves the turtlebot to the goal."""
 		# Creates a pose object
-		goal_pose = Pose()
+		self.follow_subscriber = rospy.Subscriber('robot1/odom', Odometry, self.update_Leaderpose)
 		# Get the input from the user.
-		goal_pose.x = x
-		goal_pose.y = y
 		link_p = xp
 		link_i = xi
 		link_d = xd
@@ -112,18 +111,18 @@ class TurtleBot:
 		vel_msg = Twist()
 
 		# feedback loop to keep sending control signal while distance > tolerance
-		while self.euclidean_distance(goal_pose) >= distance_tolerance:
+		while self.euclidean_distance(self.goal_pose) >= distance_tolerance:
 
 			if self.front_laser < 0.75:
 				print('Obstacle detected in front, modify code below to avoid collision')
-				vel_msg.linear.x = self.linear_vel(goal_pose, link_p*self.front_laser, link_i*self.front_laser, link_d*self.front_laser)
-				vel_msg.angular.z = self.angular_vel(goal_pose, angk_p*self.front_laser, angk_i*self.front_laser, angk_d*self.front_laser)
+				vel_msg.linear.x = self.linear_vel(self.goal_pose, link_p*self.front_laser, link_i*self.front_laser, link_d*self.front_laser)
+				vel_msg.angular.z = self.angular_vel(self.goal_pose, angk_p*self.front_laser, angk_i*self.front_laser, angk_d*self.front_laser)
 			else:
 				# Linear velocity in the x-axis.
-				vel_msg.linear.x = self.linear_vel(goal_pose, link_p, link_i, link_d)
+				vel_msg.linear.x = self.linear_vel(self.goal_pose, link_p, link_i, link_d)
 
 				# Angular velocity in the z-axis.
-				vel_msg.angular.z = self.angular_vel(goal_pose, angk_p, angk_i, angk_d)
+				vel_msg.angular.z = self.angular_vel(self.goal_pose, angk_p, angk_i, angk_d)
 
 			# Publishing our vel_msg
 			self.velocity_publisher.publish(vel_msg)
