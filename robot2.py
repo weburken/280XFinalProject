@@ -52,9 +52,24 @@ class TurtleBot:
 
 	def update_scan(self, data):
 		"""Callback function that is called when a new message of type LaserScan is received by the laser_subscriber."""
+		
+		
 
 		# updates distance to any obstacle in front of turtlebot
 		self.front_laser = data.ranges[0]
+		self.front_laser15 = data.ranges[15]
+		self.front_laser30 = data.ranges[30]
+		self.front_laser45 = data.ranges[45]
+		self.front_laser60 = data.ranges[60]
+		self.front_laser75 = data.ranges[75]
+		self.front_laser90 = data.ranges[90]
+
+		self.front_laser345 = data.ranges[345]
+		self.front_laser330 = data.ranges[330]
+		self.front_laser315 = data.ranges[315]
+		self.front_laser300 = data.ranges[300]
+		self.front_laser285 = data.ranges[285]
+		self.front_laser270 = data.ranges[270]
 
 	def euclidean_distance(self, goal_pose):
 		"""Euclidean distance between current pose and the goal."""
@@ -84,8 +99,6 @@ class TurtleBot:
 		self.sum_angular_error += self.angular_error
 
 		return k_p*(self.angular_error) + k_i*(self.sum_angular_error) + k_d*(self.angular_error - self.previous_angular_error)
-	
-
 
 	def move2goal(self, x, y, xp, xi, xd, ap, ai, ad, finList):
 		start = time.time()
@@ -111,10 +124,19 @@ class TurtleBot:
 		# feedback loop to keep sending control signal while distance > tolerance
 		while self.euclidean_distance(goal_pose) >= distance_tolerance:
 
-			if self.front_laser < 0.75:
+			if self.front_laser < 0.75 or self.front_laser15 < 0.75 or self.front_laser30 < 0.75 or	self.front_laser45 < 0.75 or self.front_laser60 < 0.75 or self.front_laser345 < 0.75 or self.front_laser330 < 0.75 or self.front_laser315 < 0.75 or	self.front_laser300 < 0.75: 
 				print('Obstacle detected in front, modify code below to avoid collision')
-				vel_msg.linear.x = self.linear_vel(goal_pose, link_p*self.front_laser, link_i*self.front_laser, link_d*self.front_laser)
-				vel_msg.angular.z = self.angular_vel(goal_pose, angk_p*self.front_laser, angk_i*self.front_laser, angk_d*self.front_laser)
+				print(self.front_laser)
+				vel_msg.linear.x = self.linear_vel(goal_pose, -0.675*link_p,0,0)
+				vel_msg.angular.z = self.angular_vel(goal_pose, 1.75*angk_p,angk_i,1.5*angk_d)
+
+			elif self.front_laser75 < 0.75 or self.front_laser90 < 0.75 or self.front_laser285 < 0.75 or self.front_laser270 < 0.75:  
+				print('Obstacle detected in front, modify code below to avoid collision')
+				print(self.front_laser)
+				vel_msg.linear.x = self.linear_vel(goal_pose, link_p,0,0)
+				vel_msg.angular.z = self.angular_vel(goal_pose, angk_p,angk_i,angk_d)
+	
+
 			else:
 				# Linear velocity in the x-axis.
 				vel_msg.linear.x = self.linear_vel(goal_pose, link_p, link_i, link_d)
@@ -146,11 +168,7 @@ if __name__ == '__main__':
 	try:
 		finList =[]
 		x = TurtleBot()
-		x.move2goal(-3,5, 0.25, 0,0,5,0,10, finList)
-		x.move2goal(-6,7, 0.25, 0,0,5,0,10, finList)
-		x.move2goal(-4,2, 0.25, 0,0,5,0,10, finList)
-		x.move2goal(-1,1, 0.25, 0,0,5,0,10, finList)
-
+		x.move2goal(-2,-2, 0.25, 0,0,5,0,10, finList)
 
 	except rospy.ROSInterruptException:
 		pass
