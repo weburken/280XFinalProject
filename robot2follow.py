@@ -22,7 +22,6 @@ class TurtleBot:
 		# A subscriber to the topic '/odom'. self.update_pose is called when a message of type Pose is received.
 		self.pose_subscriber = rospy.Subscriber('robot2/odom', Odometry, self.update_pose)
 		self.laser_suscriber = rospy.Subscriber('robot2/scan', LaserScan, self.update_scan)
-		self.follow_subscriber = rospy.Subscriber('robot1/odom', Odometry, self.update_Leadpose)
 		# Create a pose object attributed to turtlebot
 		self.odom = Odometry
 		self.goal_pose = Pose()
@@ -87,15 +86,15 @@ class TurtleBot:
 		return k_p*(self.angular_error) + k_i*(self.sum_angular_error) + k_d*(self.angular_error - self.previous_angular_error)
 	def update_Leadpose(self, data):#TODO: CHeck
 		"""Callback function that is called when a new message of type Pose is received by the pose_subscriber."""
-		self.goal_pose.x = round(data.odom.pose.pose.position.x, 4)
-		self.goal.pose.y = round(data.odom.pose.pose.position.y, 4)
+		self.goal_pose.x = data.pose.pose.position.x
+		self.goal_pose.y = data.pose.pose.position.y
+		print("x: ", self.goal_pose.x, ", y: ", self.goal_pose.y)
 
 
 	def move2goal(self, x, y, xp, xi, xd, ap, ai, ad, finList):
 		start = time.time()
 		"""Moves the turtlebot to the goal."""
 		# Creates a pose object
-		
 		# Get the input from the user.
 		link_p = xp
 		link_i = xi
@@ -104,6 +103,9 @@ class TurtleBot:
 		angk_i = ai
 		angk_d = ad
 
+		
+		follow_subscriber = rospy.Subscriber('robot1/odom', Odometry, self.update_Leadpose)
+		Odom = Odometry()
 		# Insert a number slightly greater than 0 (e.g. 0.01).
 		distance_tolerance = 0.01#float(input("Set your tolerance for goal: "))
 
