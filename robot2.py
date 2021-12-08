@@ -52,8 +52,6 @@ class TurtleBot:
 
 	def update_scan(self, data):
 		"""Callback function that is called when a new message of type LaserScan is received by the laser_subscriber."""
-		
-		
 
 		# updates distance to any obstacle in front of turtlebot
 		self.front_laser = data.ranges[0]
@@ -99,6 +97,8 @@ class TurtleBot:
 		self.sum_angular_error += self.angular_error
 
 		return k_p*(self.angular_error) + k_i*(self.sum_angular_error) + k_d*(self.angular_error - self.previous_angular_error)
+	
+
 
 	def move2goal(self, x, y, xp, xi, xd, ap, ai, ad, finList):
 		start = time.time()
@@ -135,8 +135,6 @@ class TurtleBot:
 				print(self.front_laser)
 				vel_msg.linear.x = self.linear_vel(goal_pose, link_p,0,0)
 				vel_msg.angular.z = self.angular_vel(goal_pose, angk_p,angk_i,angk_d)
-	
-
 			else:
 				# Linear velocity in the x-axis.
 				vel_msg.linear.x = self.linear_vel(goal_pose, link_p, link_i, link_d)
@@ -168,7 +166,11 @@ if __name__ == '__main__':
 	try:
 		finList =[]
 		x = TurtleBot()
-		x.move2goal(-2,-2, 0.25, 0,0,5,0,10, finList)
+		x.move2goal(-3,5, 0.25, 0,0,5,0,10, finList)
+		x.move2goal(-6,7, 0.25, 0,0,5,0,10, finList)
+		x.move2goal(-4,2, 0.25, 0,0,5,0,10, finList)
+		x.move2goal(-1,1, 0.25, 0,0,5,0,10, finList)
+
 
 	except rospy.ROSInterruptException:
 		pass
