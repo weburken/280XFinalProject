@@ -21,6 +21,7 @@ class TurtleBot:
 
 		# A subscriber to the topic '/odom'. self.update_pose is called when a message of type Pose is received.
 		self.pose_subscriber = rospy.Subscriber('robot1/odom', Odometry, self.update_pose)
+		self.position_publisher = rospy.Publisher('robot1/pose', Twist, queue_size = 10)
 		self.laser_suscriber = rospy.Subscriber('robot1/scan', LaserScan, self.update_scan)
 
 		# Create a pose object attributed to turtlebot
@@ -52,8 +53,6 @@ class TurtleBot:
 
 	def update_scan(self, data):
 		"""Callback function that is called when a new message of type LaserScan is received by the laser_subscriber."""
-		
-		
 
 		# updates distance to any obstacle in front of turtlebot
 		self.front_laser = data.ranges[0]
@@ -70,6 +69,7 @@ class TurtleBot:
 		self.front_laser300 = data.ranges[300]
 		self.front_laser285 = data.ranges[285]
 		self.front_laser270 = data.ranges[270]
+
 
 	def euclidean_distance(self, goal_pose):
 		"""Euclidean distance between current pose and the goal."""
@@ -135,8 +135,6 @@ class TurtleBot:
 				print(self.front_laser)
 				vel_msg.linear.x = self.linear_vel(goal_pose, link_p,0,0)
 				vel_msg.angular.z = self.angular_vel(goal_pose, angk_p,angk_i,angk_d)
-	
-
 			else:
 				# Linear velocity in the x-axis.
 				vel_msg.linear.x = self.linear_vel(goal_pose, link_p, link_i, link_d)
@@ -168,7 +166,8 @@ if __name__ == '__main__':
 	try:
 		finList =[]
 		x = TurtleBot()
-		x.move2goal(-2,-2, 0.25, 0,0,5,0,10, finList)
+		x.move2goal(3,5, 0.25, 0,0,5,0,10, finList)
+		x.move2goal(6,2, 0.25, 0,0,5,0,10, finList)
 
 	except rospy.ROSInterruptException:
 		pass
