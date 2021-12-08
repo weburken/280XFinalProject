@@ -9,7 +9,7 @@ from geometry_msgs.msg import Twist  # import geometry message package. Twist is
 from nav_msgs.msg import Odometry # import navigation message package. Odometry is the data type to extract turtlebot's position in quaternions
 import tf
 from tf.transformations import euler_from_quaternion #import transformation package, which allows us to convert from quaternions to eulerian coordinates
-
+import time
 class TurtleBot:
 
 	def __init__(self):
@@ -32,7 +32,7 @@ class TurtleBot:
 		print('Initiliazing at x:{}, y:{}'.format(self.pos_x, self.pos_y))
 
 		self.distance_error = 0
-		self.previous_distance_error = 0 
+		self.previous_distance_error = 0
 		self.sum_distance_error = 0
 
 		self.angular_error = 0
@@ -60,7 +60,7 @@ class TurtleBot:
 		"""Euclidean distance between current pose and the goal."""
 		return sqrt(pow((goal_pose.x - self.pos_x), 2) + pow((goal_pose.y - self.pos_y), 2))
 
-	def linear_vel(self, goal_pose, k_p=0.2, k_i=0, k_d=0): 
+	def linear_vel(self, goal_pose, k_p, k_i, k_d):
 		# Store previous error in a variable
 		self.previous_distance_error = self.distance_error
 		# Update the distance error with respect to current pose
@@ -75,7 +75,7 @@ class TurtleBot:
 		angle = atan2(goal_pose.y - self.pos_y, goal_pose.x - self.pos_x)
 		return angle
 
-	def angular_vel(self, goal_pose, k_p=0.5, k_i=0, k_d=0):
+	def angular_vel(self, goal_pose, k_p, k_i, k_d):
 		# Store previous error in a variable
 		self.previous_angular_error = self.angular_error
 		# Update the distance error with respect to current pose
@@ -90,20 +90,23 @@ class TurtleBot:
 		goal.pose.y = data.y 
 
 
-	def move2goal(self):
+	def move2goal(self, x, y, xp, xi, xd, ap, ai, ad, finList):
+		start = time.time()
 		"""Moves the turtlebot to the goal."""
+		# Creates a pose object
 		goal_pose = Pose()
-		rospy.init_node('pose_subscriber', anonymous=True) #TODO: CHeck
-		rospy.Subscriber('robot1/pose', Pose, update_Leadpose)#TODO: CHeck
 		# Get the input from the user.
-		goal_pose.x = float(input("Set your x goal: "))
-		goal_pose.y = float(input("Set your y goal: "))
-		k_p = float(input("Set constant for K_p: "))
-		k_i = float(input("Set constant for K_i: "))
-		k_d = float(input("Set constant for K_d: "))
+		goal_pose.x = x
+		goal_pose.y = y
+		link_p = xp
+		link_i = xi
+		link_d = xd
+		angk_p = ap
+		angk_i = ai
+		angk_d = ad
 
 		# Insert a number slightly greater than 0 (e.g. 0.01).
-		distance_tolerance = float(input("Set your tolerance for goal: "))
+		distance_tolerance = 0.01#float(input("Set your tolerance for goal: "))
 
 		# Instantiate Twist object to send mesg to turtlebot
 		vel_msg = Twist()
@@ -113,14 +116,14 @@ class TurtleBot:
 
 			if self.front_laser < 0.75:
 				print('Obstacle detected in front, modify code below to avoid collision')
-				vel_msg.linear.x = self.linear_vel(goal_pose, k_p, k_i, k_d)
-				vel_msg.angular.z = self.angular_vel(goal_pose, k_p, k_i, k_d)
+				vel_msg.linear.x = self.linear_vel(goal_pose, link_p*self.front_laser, link_i*self.front_laser, link_d*self.front_laser)
+				vel_msg.angular.z = self.angular_vel(goal_pose, angk_p*self.front_laser, angk_i*self.front_laser, angk_d*self.front_laser)
 			else:
 				# Linear velocity in the x-axis.
-				vel_msg.linear.x = self.linear_vel(goal_pose, k_p, k_i, k_d)
+				vel_msg.linear.x = self.linear_vel(goal_pose, link_p, link_i, link_d)
 
 				# Angular velocity in the z-axis.
-				vel_msg.angular.z = self.angular_vel(goal_pose, k_p, k_i, k_d)
+				vel_msg.angular.z = self.angular_vel(goal_pose, angk_p, angk_i, angk_d)
 
 			# Publishing our vel_msg
 			self.velocity_publisher.publish(vel_msg)
@@ -132,12 +135,25 @@ class TurtleBot:
 		vel_msg.linear.x = 0
 		vel_msg.angular.z = 0
 		self.velocity_publisher.publish(vel_msg)
-
+		end = time.time()
+		finList.append((end-start))
 		print('Arrived at location x:{}, y:{}'.format(self.pos_x, self.pos_y))
 
-if __name__ == '__main__':
+def run(x,y,xp, xi, xd, ap, ai, ad, finList):
 	try:
 		x = TurtleBot()
-		x.move2goal()
+		x.move2goal(x,y,xp, xi, xd, ap, ai, ad, finList)
+	except rospy.ROSInterruptException:
+		pass
+if __name__ == '__main__':
+	try:
+		finList =[]
+		x = TurtleBot()
+		x.move2goal(-3,5, 0.25, 0,0,5,0,10, finList)
+		x.move2goal(-6,7, 0.25, 0,0,5,0,10, finList)
+		x.move2goal(-4,2, 0.25, 0,0,5,0,10, finList)
+		x.move2goal(-1,1, 0.25, 0,0,5,0,10, finList)
+
+
 	except rospy.ROSInterruptException:
 		pass
