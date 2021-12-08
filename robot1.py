@@ -22,6 +22,7 @@ class TurtleBot:
 
 		# A subscriber to the topic '/odom'. self.update_pose is called when a message of type Pose is received.
 		self.pose_subscriber = rospy.Subscriber('robot1/odom', Odometry, self.update_pose)
+		self.position_publisher = rospy.Publisher('robot1/pose', Twist, queue_size = 10)
 		self.laser_suscriber = rospy.Subscriber('robot1/scan', LaserScan, self.update_scan)
 
 		# Create a pose object attributed to turtlebot

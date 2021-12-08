@@ -84,13 +84,17 @@ class TurtleBot:
 		self.sum_angular_error += self.angular_error
 
 		return k_p*(self.angular_error) + k_i*(self.sum_angular_error) + k_d*(self.angular_error - self.previous_angular_error)
+	def update_Leadpose(data):#TODO: CHeck
+		"""Callback function that is called when a new message of type Pose is received by the pose_subscriber."""
+		goal_pose.x = data.x 
+		goal.pose.y = data.y 
+
 
 	def move2goal(self):
 		"""Moves the turtlebot to the goal."""
-
-		# Creates a pose object
 		goal_pose = Pose()
-
+		rospy.init_node('pose_subscriber', anonymous=True) #TODO: CHeck
+		rospy.Subscriber('robot1/pose', Pose, update_Leadpose)#TODO: CHeck
 		# Get the input from the user.
 		goal_pose.x = float(input("Set your x goal: "))
 		goal_pose.y = float(input("Set your y goal: "))

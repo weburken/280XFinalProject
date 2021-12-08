@@ -13,8 +13,12 @@ if __name__ == '__main__':
 
 
 
-    os.system("roslaunch final_project main.launch")
-    print("DONE")
+    Rossy = os.system("roslaunch final_project main.launch")
+    time.sleep(10)
+    Rossy.terminate()
+    Rossy.join()
+
+    print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDONE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
     x = 10
     y = 10
 
