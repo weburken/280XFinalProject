@@ -18,7 +18,7 @@ class TurtleBot:
 
 		# Publisher which will publish to the topic 'robot1/cmd_vel'.
 		self.velocity_publisher = rospy.Publisher('robot1/cmd_vel', Twist, queue_size=10)
-
+		self.pose_publisher = rospy.Publisher('robot1/odom', Odometry, queue_size = 10)
 		# A subscriber to the topic '/odom'. self.update_pose is called when a message of type Pose is received.
 		self.pose_subscriber = rospy.Subscriber('robot1/odom', Odometry, self.update_pose)
 		self.position_publisher = rospy.Publisher('robot1/pose', Twist, queue_size = 10)
@@ -31,7 +31,7 @@ class TurtleBot:
 		# We need a short pause to allow self.pose to suscribe from the topic and accurate display turtlebots pose
 		rospy.sleep(0.5)
 		print('Initiliazing at x:{}, y:{}'.format(self.pos_x, self.pos_y))
-
+		self.posArr = [[self.pos_x,self.pos_x,self.pos_x], [self.pos_y,self.pos_y,self.pos_y]]
 		self.distance_error = 0
 		self.previous_distance_error = 0
 		self.sum_distance_error = 0
@@ -43,8 +43,17 @@ class TurtleBot:
 	def update_pose(self, data):
 		"""Callback function that is called when a new message of type Pose is received by the pose_subscriber."""
 		self.odom = data
-		self.pos_x = round(self.odom.pose.pose.position.x, 4)
-		self.pos_y = round(self.odom.pose.pose.position.y, 4)
+		self.posArr[0][2] = self.posArr[0][1]
+		self.posArr[0][1] = self.posArr[0][0]
+		self.posArr[0][0] = round(self.odom.pose.pose.position.x, 4)
+		self.posArr[1][2] = self.posArr[1][1]
+		self.posArr[1][1] = self.posArr[1][0]
+		self.posArr[1][0] = round(self.odom.pose.pose.position.y, 4)
+		xAve = (1/6)*self.posArr[0][2]+ (1/3) * self.posArr[0][1] + (1/2) * self.posArr[0][0]
+		yAve = (1/6)*self.posArr[1][2]+ (1/3) * self.posArr[1][1] + (1/2) * self.posArr[1][0]
+
+		self.pos_x = round(xAve, 4)
+		self.pos_y = round(yAve, 4)
 		# convert quaternion coordinates in the form of (x,y,z,w) to eulerian coordinates (roll, pitch, yaw)
 		self.roll,self.pitch,self.yaw = euler_from_quaternion((self.odom.pose.pose.orientation.x, self.odom.pose.pose.orientation.y, \
 															   self.odom.pose.pose.orientation.z,self.odom.pose.pose.orientation.w))
@@ -56,20 +65,6 @@ class TurtleBot:
 
 		# updates distance to any obstacle in front of turtlebot
 		self.front_laser = data.ranges[0]
-		self.front_laser15 = data.ranges[15]
-		self.front_laser30 = data.ranges[30]
-		self.front_laser45 = data.ranges[45]
-		self.front_laser60 = data.ranges[60]
-		self.front_laser75 = data.ranges[75]
-		self.front_laser90 = data.ranges[90]
-
-		self.front_laser345 = data.ranges[345]
-		self.front_laser330 = data.ranges[330]
-		self.front_laser315 = data.ranges[315]
-		self.front_laser300 = data.ranges[300]
-		self.front_laser285 = data.ranges[285]
-		self.front_laser270 = data.ranges[270]
-
 
 	def euclidean_distance(self, goal_pose):
 		"""Euclidean distance between current pose and the goal."""
@@ -124,17 +119,10 @@ class TurtleBot:
 		# feedback loop to keep sending control signal while distance > tolerance
 		while self.euclidean_distance(goal_pose) >= distance_tolerance:
 
-			if self.front_laser < 0.75 or self.front_laser15 < 0.75 or self.front_laser30 < 0.75 or	self.front_laser45 < 0.75 or self.front_laser60 < 0.75 or self.front_laser345 < 0.75 or self.front_laser330 < 0.75 or self.front_laser315 < 0.75 or	self.front_laser300 < 0.75: 
+			if self.front_laser < 0.75:
 				print('Obstacle detected in front, modify code below to avoid collision')
-				print(self.front_laser)
-				vel_msg.linear.x = self.linear_vel(goal_pose, -0.675*link_p,0,0)
-				vel_msg.angular.z = self.angular_vel(goal_pose, 1.75*angk_p,angk_i,1.5*angk_d)
-
-			elif self.front_laser75 < 0.75 or self.front_laser90 < 0.75 or self.front_laser285 < 0.75 or self.front_laser270 < 0.75:  
-				print('Obstacle detected in front, modify code below to avoid collision')
-				print(self.front_laser)
-				vel_msg.linear.x = self.linear_vel(goal_pose, link_p,0,0)
-				vel_msg.angular.z = self.angular_vel(goal_pose, angk_p,angk_i,angk_d)
+				vel_msg.linear.x = self.linear_vel(goal_pose, link_p*self.front_laser, link_i*self.front_laser, link_d*self.front_laser)
+				vel_msg.angular.z = self.angular_vel(goal_pose, angk_p*self.front_laser, angk_i*self.front_laser, angk_d*self.front_laser)
 			else:
 				# Linear velocity in the x-axis.
 				vel_msg.linear.x = self.linear_vel(goal_pose, link_p, link_i, link_d)

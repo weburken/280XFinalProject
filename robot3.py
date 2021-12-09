@@ -22,6 +22,7 @@ class TurtleBot:
 		# A subscriber to the topic '/odom'. self.update_pose is called when a message of type Pose is received.
 		self.pose_subscriber = rospy.Subscriber('robot3/odom', Odometry, self.update_pose)
 		self.laser_suscriber = rospy.Subscriber('robot3/scan', LaserScan, self.update_scan)
+		self.posArr = [[self.pos_x,self.pos_x,self.pos_x], [self.pos_y,self.pos_y,self.pos_y]]
 
 		# Create a pose object attributed to turtlebot
 		self.odom = Odometry
@@ -42,8 +43,17 @@ class TurtleBot:
 	def update_pose(self, data):
 		"""Callback function that is called when a new message of type Pose is received by the pose_subscriber."""
 		self.odom = data
-		self.pos_x = round(self.odom.pose.pose.position.x, 4)
-		self.pos_y = round(self.odom.pose.pose.position.y, 4)
+		self.posArr[0][2] = self.posArr[0][1]
+		self.posArr[0][1] = self.posArr[0][0]
+		self.posArr[0][0] = round(self.odom.pose.pose.position.x, 4)
+		self.posArr[1][2] = self.posArr[1][1]
+		self.posArr[1][1] = self.posArr[1][0]
+		self.posArr[1][0] = round(self.odom.pose.pose.position.y, 4)
+		xAve = (1/6)*self.posArr[0][2]+ (1/3) * self.posArr[0][1] + (1/2) * self.posArr[0][0]
+		yAve = (1/6)*self.posArr[1][2]+ (1/3) * self.posArr[1][1] + (1/2) * self.posArr[1][0]
+
+		self.pos_x = round(xAve, 4)
+		self.pos_y = round(yAve, 4)
 		# convert quaternion coordinates in the form of (x,y,z,w) to eulerian coordinates (roll, pitch, yaw)
 		self.roll,self.pitch,self.yaw = euler_from_quaternion((self.odom.pose.pose.orientation.x, self.odom.pose.pose.orientation.y, \
 															   self.odom.pose.pose.orientation.z,self.odom.pose.pose.orientation.w))
