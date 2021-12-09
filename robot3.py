@@ -18,6 +18,7 @@ class TurtleBot:
 
 		# Publisher which will publish to the topic 'robot3/cmd_vel'.
 		self.velocity_publisher = rospy.Publisher('robot3/cmd_vel', Twist, queue_size=10)
+		self.pose_publisher = rospy.Publisher('robot3/odom', Odometry, queue_size = 10)
 
 		# A subscriber to the topic '/odom'. self.update_pose is called when a message of type Pose is received.
 		self.pose_subscriber = rospy.Subscriber('robot3/odom', Odometry, self.update_pose)
