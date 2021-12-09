@@ -88,8 +88,9 @@ class TurtleBot:
 		self.sum_angular_error += self.angular_error
 
 		return k_p*(self.angular_error) + k_i*(self.sum_angular_error) + k_d*(self.angular_error - self.previous_angular_error)
-	def update_Leadpose(self, data):#TODO: CHeck
-		"""Callback function that is called when a new message of type Pose is received by the pose_subscriber."""
+
+
+	def update_Leadpose(self, data):
 		self.goal_pose.x = data.pose.pose.position.x
 		self.goal_pose.y = data.pose.pose.position.y
 		#print("xPos: ", self.goal_pose.x, ", yPos: ", self.goal_pose.y)
