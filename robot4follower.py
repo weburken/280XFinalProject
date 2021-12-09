@@ -25,6 +25,7 @@ class TurtleBot:
 		# Create a pose object attributed to turtlebot
 		self.odom = Odometry
 		self.goal_pose = Pose()
+		self.velGoal = Twist()
 		# Set the rate at which we publish/suscribe in Hz
 		self.rate = rospy.Rate(10)
 		# We need a short pause to allow self.pose to suscribe from the topic and accurate display turtlebots pose
@@ -88,8 +89,12 @@ class TurtleBot:
 		"""Callback function that is called when a new message of type Pose is received by the pose_subscriber."""
 		self.goal_pose.x = data.pose.pose.position.x
 		self.goal_pose.y = data.pose.pose.position.y
-		print("x: ", self.goal_pose.x, ", y: ", self.goal_pose.y)
+		#print("xPos: ", self.goal_pose.x, ", yPos: ", self.goal_pose.y)
 
+	def update_LeaderVel(self, data):#TODO: CHeck
+		"""Callback function that is called when a new message of type Pose is received by the pose_subscriber."""
+		self.velGoal = data
+		print("GoalVel: ", self.velGoal.linear.x, ", Actual: ")
 
 	def move2goal(self, x, y, xp, xi, xd, ap, ai, ad, finList):
 		start = time.time()
@@ -104,32 +109,43 @@ class TurtleBot:
 		angk_d = ad
 
 		follow_subscriber = rospy.Subscriber('robot3/odom', Odometry, self.update_Leadpose)
-
+		velocity_subscriber = rospy.Subscriber('robot3/cmd_vel', Twist, self.update_LeaderVel)
 		# Insert a number slightly greater than 0 (e.g. 0.01).
-		distance_tolerance = 0.01#float(input("Set your tolerance for goal: "))
+		distance_tolerance = 0.75#float(input("Set your tolerance for goal: "))
 
 		# Instantiate Twist object to send mesg to turtlebot
 		vel_msg = Twist()
 
 		# feedback loop to keep sending control signal while distance > tolerance
-		while self.euclidean_distance(self.goal_pose) >= distance_tolerance:
+		while self.euclidean_distance(self.goal_pose) >= distance_tolerance or self.velGoal.linear.x > 0.01:
+			if self.euclidean_distance(self.goal_pose) >= distance_tolerance:
+				if self.front_laser < 0.01:
+					print('Obstacle detected in front, modify code below to avoid collision')
+					vel_msg.linear.x = self.linear_vel(self.goal_pose, link_p*self.front_laser, link_i*self.front_laser, link_d*self.front_laser)
+					vel_msg.angular.z = self.angular_vel(self.goal_pose, angk_p*self.front_laser, angk_i*self.front_laser, angk_d*self.front_laser)
+				else:
+					# Linear velocity in the x-axis.
+					vel_msg.linear.x = self.linear_vel(self.goal_pose, link_p, link_i, link_d)
 
-			if self.front_laser < 0.01:
-				print('Obstacle detected in front, modify code below to avoid collision')
-				vel_msg.linear.x = self.linear_vel(self.goal_pose, link_p*self.front_laser, link_i*self.front_laser, link_d*self.front_laser)
-				vel_msg.angular.z = self.angular_vel(self.goal_pose, angk_p*self.front_laser, angk_i*self.front_laser, angk_d*self.front_laser)
+					# Angular velocity in the z-axis.
+					vel_msg.angular.z = self.angular_vel(self.goal_pose, angk_p, angk_i, angk_d)
+
+				# Publishing our vel_msg
+				self.velocity_publisher.publish(vel_msg)
+
+				# Publish at the desired rate.
+				self.rate.sleep()
 			else:
-				# Linear velocity in the x-axis.
-				vel_msg.linear.x = self.linear_vel(self.goal_pose, link_p, link_i, link_d)
+				vel_msg.linear.x = self.velGoal.linear.x
 
-				# Angular velocity in the z-axis.
+					# Angular velocity in the z-axis.
 				vel_msg.angular.z = self.angular_vel(self.goal_pose, angk_p, angk_i, angk_d)
 
-			# Publishing our vel_msg
-			self.velocity_publisher.publish(vel_msg)
+				# Publishing our vel_msg
+				self.velocity_publisher.publish(vel_msg)
 
-			# Publish at the desired rate.
-			self.rate.sleep()
+				# Publish at the desired rate.
+				self.rate.sleep()
 
 		# Stopping our robot after destination is reached
 		vel_msg.linear.x = 0
@@ -150,9 +166,6 @@ if __name__ == '__main__':
 		finList =[]
 		x = TurtleBot()
 		x.move2goal(-3,5, 0.25, 0,0,5,0,10, finList)
-		x.move2goal(-6,7, 0.25, 0,0,5,0,10, finList)
-		x.move2goal(-4,2, 0.25, 0,0,5,0,10, finList)
-		x.move2goal(-1,1, 0.25, 0,0,5,0,10, finList)
 
 
 	except rospy.ROSInterruptException:
