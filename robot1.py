@@ -31,7 +31,6 @@ class TurtleBot:
 		# We need a short pause to allow self.pose to suscribe from the topic and accurate display turtlebots pose
 		rospy.sleep(0.5)
 		print('Initiliazing at x:{}, y:{}'.format(self.pos_x, self.pos_y))
-		self.posArr = [[self.pos_x,self.pos_x,self.pos_x], [self.pos_y,self.pos_y,self.pos_y]]
 		self.distance_error = 0
 		self.previous_distance_error = 0
 		self.sum_distance_error = 0
@@ -43,17 +42,9 @@ class TurtleBot:
 	def update_pose(self, data):
 		"""Callback function that is called when a new message of type Pose is received by the pose_subscriber."""
 		self.odom = data
-		self.posArr[0][2] = self.posArr[0][1]
-		self.posArr[0][1] = self.posArr[0][0]
-		self.posArr[0][0] = round(self.odom.pose.pose.position.x, 4)
-		self.posArr[1][2] = self.posArr[1][1]
-		self.posArr[1][1] = self.posArr[1][0]
-		self.posArr[1][0] = round(self.odom.pose.pose.position.y, 4)
-		xAve = (1/6)*self.posArr[0][2]+ (1/3) * self.posArr[0][1] + (1/2) * self.posArr[0][0]
-		yAve = (1/6)*self.posArr[1][2]+ (1/3) * self.posArr[1][1] + (1/2) * self.posArr[1][0]
 
-		self.pos_x = round(xAve, 4)
-		self.pos_y = round(yAve, 4)
+		self.pos_x = round(0.5*self.odom.pose.pose.position.x + 0.5* self.pos_x,4)
+		self.pos_y = round(0.5*self.odom.pose.pose.position.y + 0.5* self.pos_y,4)
 		# convert quaternion coordinates in the form of (x,y,z,w) to eulerian coordinates (roll, pitch, yaw)
 		self.roll,self.pitch,self.yaw = euler_from_quaternion((self.odom.pose.pose.orientation.x, self.odom.pose.pose.orientation.y, \
 															   self.odom.pose.pose.orientation.z,self.odom.pose.pose.orientation.w))
