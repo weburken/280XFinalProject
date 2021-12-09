@@ -23,7 +23,6 @@ class TurtleBot:
 		self.pose_subscriber = rospy.Subscriber('robot2/odom', Odometry, self.update_pose)
 		self.laser_suscriber = rospy.Subscriber('robot2/scan', LaserScan, self.update_scan)
 		# Create a pose object attributed to turtlebot
-		self.posArr = [[self.pos_x,self.pos_x,self.pos_x], [self.pos_y,self.pos_y,self.pos_y]]
 
 		self.odom = Odometry
 		self.goal_pose = Pose()
@@ -33,6 +32,8 @@ class TurtleBot:
 		# We need a short pause to allow self.pose to suscribe from the topic and accurate display turtlebots pose
 		rospy.sleep(0.5)
 		print('Initiliazing at x:{}, y:{}'.format(self.pos_x, self.pos_y))
+
+
 
 		self.distance_error = 0
 		self.previous_distance_error = 0
@@ -46,8 +47,8 @@ class TurtleBot:
 		"""Callback function that is called when a new message of type Pose is received by the pose_subscriber."""
 		self.odom = data
 
-		self.pos_x = round(0.5*self.odom.pose.pose.position.x + 0.5* self.pos_x,4)
-		self.pos_y = round(0.5*self.odom.pose.pose.position.y + 0.5* self.pos_y,4)
+		self.pos_x = round(self.odom.pose.pose.position.x, 4)
+		self.pos_y = round(self.odom.pose.pose.position.y, 4)
 		# convert quaternion coordinates in the form of (x,y,z,w) to eulerian coordinates (roll, pitch, yaw)
 		self.roll,self.pitch,self.yaw = euler_from_quaternion((self.odom.pose.pose.orientation.x, self.odom.pose.pose.orientation.y, \
 															   self.odom.pose.pose.orientation.z,self.odom.pose.pose.orientation.w))
@@ -114,6 +115,8 @@ class TurtleBot:
 
 		follow_subscriber = rospy.Subscriber('robot1/odom', Odometry, self.update_Leadpose)
 		velocity_subscriber = rospy.Subscriber('robot1/cmd_vel', Twist, self.update_LeaderVel)
+
+
 		# Insert a number slightly greater than 0 (e.g. 0.01).
 		distance_tolerance = 0.75#float(input("Set your tolerance for goal: "))
 

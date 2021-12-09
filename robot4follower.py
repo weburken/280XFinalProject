@@ -44,8 +44,8 @@ class TurtleBot:
 		"""Callback function that is called when a new message of type Pose is received by the pose_subscriber."""
 		self.odom = data
 
-		self.pos_x = round(0.5*self.odom.pose.pose.position.x + 0.5* self.pos_x,4)
-		self.pos_y = round(0.5*self.odom.pose.pose.position.y + 0.5* self.pos_y,4)
+		self.pos_x = round(self.odom.pose.pose.position.x, 4)
+		self.pos_y = round(self.odom.pose.pose.position.y, 4)
 		# convert quaternion coordinates in the form of (x,y,z,w) to eulerian coordinates (roll, pitch, yaw)
 		self.roll,self.pitch,self.yaw = euler_from_quaternion((self.odom.pose.pose.orientation.x, self.odom.pose.pose.orientation.y, \
 															   self.odom.pose.pose.orientation.z,self.odom.pose.pose.orientation.w))
