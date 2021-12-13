@@ -13,20 +13,13 @@ def foo(n):
         child.kill()
 
 if __name__ == '__main__':
-    #os.system("roslaunch final_project main.launch")
 
-  
-    # Start foo as a process
-    x = 10
-    y = 10
-
-    #TEST: Below is testing material
+    #TEST: Below is testing rosLuanch
     roslaunch = subprocess.Popen(["roslaunch","final_project","main.launch"])
     try:
         roslaunch.wait(100)
     except:
         roslaunch.kill()
-
 
 
     time.sleep(5)
