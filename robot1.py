@@ -110,10 +110,12 @@ class TurtleBot:
 		# feedback loop to keep sending control signal while distance > tolerance
 		while self.euclidean_distance(goal_pose) >= distance_tolerance:
 
-			if self.front_laser < 0.75:
+			if self.front_laser < 0.75 or self.front_laser15 < 0.75 or self.front_laser30 < 0.75 or	self.front_laser45 < 0.75 or self.front_laser60 < 0.75 or self.front_laser345 < 0.75 or self.front_laser330 < 0.75 or self.front_laser315 < 0.75 or	self.front_laser300 < 0.75 or self.front_laser75 < 0.75 or self.front_laser90 < 0.75 or self.front_laser285 < 0.75 or self.front_laser270 < 0.75: 
 				print('Obstacle detected in front, modify code below to avoid collision')
-				vel_msg.linear.x = self.linear_vel(goal_pose, link_p*self.front_laser, link_i*self.front_laser, link_d*self.front_laser)
-				vel_msg.angular.z = self.angular_vel(goal_pose, angk_p*self.front_laser, angk_i*self.front_laser, angk_d*self.front_laser)
+				#print(self.front_laser)
+				vel_msg.linear.x = self.linear_vel(goal_pose, 0,0,0)
+				vel_msg.angular.z = 2
+
 			else:
 				# Linear velocity in the x-axis.
 				vel_msg.linear.x = self.linear_vel(goal_pose, link_p, link_i, link_d)
