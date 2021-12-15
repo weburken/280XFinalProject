@@ -130,11 +130,6 @@ class TurtleBot:
 				vel_msg.linear.x = self.linear_vel(goal_pose, -0.675*link_p,0,0)
 				vel_msg.angular.z = self.angular_vel(goal_pose, 1.75*angk_p,angk_i,1.5*angk_d)
 
-			elif self.front_laser75 < 0.75 or self.front_laser90 < 0.75 or self.front_laser285 < 0.75 or self.front_laser270 < 0.75:  
-				print('Obstacle detected in front, modify code below to avoid collision')
-				print(self.front_laser)
-				vel_msg.linear.x = self.linear_vel(goal_pose, link_p,0,0)
-				vel_msg.angular.z = self.angular_vel(goal_pose, angk_p,angk_i,angk_d)
 			else:
 				# Linear velocity in the x-axis.
 				vel_msg.linear.x = self.linear_vel(goal_pose, link_p, link_i, link_d)
