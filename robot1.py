@@ -41,8 +41,8 @@ class TurtleBot:
 
 	def update_pose(self, data):
 		self.odom = data
-		self.pos_x = round(0.5*self.odom.pose.pose.position.x + 0.5* self.pos_x,4)
-		self.pos_y = round(0.5*self.odom.pose.pose.position.y + 0.5* self.pos_y,4)
+		self.pos_x = self.odom.pose.pose.position.x 
+		self.pos_y = self.odom.pose.pose.position.y
 
 
 		# convert quaternion coordinates in the form of (x,y,z,w) to eulerian coordinates (roll, pitch, yaw)
