@@ -45,8 +45,8 @@ class TurtleBot:
 
 	def update_pose(self, data):
 		self.odom = data
-		self.pos_x = round(0.5*self.odom.pose.pose.position.x + 0.5* self.pos_x,4)
-		self.pos_y = round(0.5*self.odom.pose.pose.position.y + 0.5* self.pos_y,4)
+		self.pos_x = self.odom.pose.pose.position.x 
+		self.pos_y = self.odom.pose.pose.position.y
 
 
 		# convert quaternion coordinates in the form of (x,y,z,w) to eulerian coordinates (roll, pitch, yaw)
@@ -60,6 +60,20 @@ class TurtleBot:
 
 		# updates distance to any obstacle in front of turtlebot
 		self.front_laser = data.ranges[0]
+		self.front_laser15 = data.ranges[15]
+		self.front_laser30 = data.ranges[30]
+		self.front_laser45 = data.ranges[45]
+		self.front_laser60 = data.ranges[60]
+		self.front_laser75 = data.ranges[75]
+		self.front_laser90 = data.ranges[90]
+
+		self.front_laser345 = data.ranges[345]
+		self.front_laser330 = data.ranges[330]
+		self.front_laser315 = data.ranges[315]
+		self.front_laser300 = data.ranges[300]
+		self.front_laser285 = data.ranges[285]
+		self.front_laser270 = data.ranges[270]
+		
 
 	def euclidean_distance(self, goal_pose):
 		"""Euclidean distance between current pose and the goal."""
@@ -110,20 +124,24 @@ class TurtleBot:
 
 		# Instantiate Twist object to send mesg to turtlebot
 		vel_msg = Twist()
+		vel_msg.linear.x = self.linear_vel(goal_pose, link_p, link_i, link_d)
+		vel_msg.angular.z = self.angular_vel(goal_pose, angk_p, angk_i, angk_d)
 
 		# feedback loop to keep sending control signal while distance > tolerance
 		while self.euclidean_distance(goal_pose) >= distance_tolerance:
 
-			if self.front_laser < 0.75:
+			if self.front_laser < 0.75 or self.front_laser15 < 0.75 or self.front_laser30 < 0.75 or	self.front_laser45 < 0.75 or self.front_laser60 < 0.75 or self.front_laser345 < 0.75 or self.front_laser330 < 0.75 or self.front_laser315 < 0.75 or	self.front_laser300 < 0.75 or self.front_laser75 < 0.75 or self.front_laser90 < 0.75 or self.front_laser285 < 0.75 or self.front_laser270 < 0.75: 
 				print('Obstacle detected in front, modify code below to avoid collision')
-				vel_msg.linear.x = self.linear_vel(goal_pose, link_p*self.front_laser, link_i*self.front_laser, link_d*self.front_laser)
-				vel_msg.angular.z = self.angular_vel(goal_pose, angk_p*self.front_laser, angk_i*self.front_laser, angk_d*self.front_laser)
+				#print(self.front_laser)
+				vel_msg.linear.x = self.linear_vel(goal_pose, 0,0,0)
+				vel_msg.angular.z = 2
+
 			else:
 				# Linear velocity in the x-axis.
-				vel_msg.linear.x = self.linear_vel(goal_pose, link_p, link_i, link_d)
+				vel_msg.linear.x = 0.75*self.linear_vel(goal_pose, link_p, link_i, link_d) + 0.25*vel_msg.linear.x
 
 				# Angular velocity in the z-axis.
-				vel_msg.angular.z = self.angular_vel(goal_pose, angk_p, angk_i, angk_d)
+				vel_msg.angular.z = 0.75*self.angular_vel(goal_pose, angk_p, angk_i, angk_d)  + 0.25*vel_msg.angular.z 
 
 			# Publishing our vel_msg
 			self.velocity_publisher.publish(vel_msg)
