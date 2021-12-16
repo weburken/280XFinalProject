@@ -56,6 +56,20 @@ class TurtleBot:
 
 		# updates distance to any obstacle in front of turtlebot
 		self.front_laser = data.ranges[0]
+		self.front_laser15 = data.ranges[15]
+		self.front_laser30 = data.ranges[30]
+		self.front_laser45 = data.ranges[45]
+		self.front_laser60 = data.ranges[60]
+		self.front_laser75 = data.ranges[75]
+		self.front_laser90 = data.ranges[90]
+
+		self.front_laser345 = data.ranges[345]
+		self.front_laser330 = data.ranges[330]
+		self.front_laser315 = data.ranges[315]
+		self.front_laser300 = data.ranges[300]
+		self.front_laser285 = data.ranges[285]
+		self.front_laser270 = data.ranges[270]
+		
 
 	def euclidean_distance(self, goal_pose):
 		"""Euclidean distance between current pose and the goal."""
