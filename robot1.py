@@ -106,6 +106,8 @@ class TurtleBot:
 
 		# Instantiate Twist object to send mesg to turtlebot
 		vel_msg = Twist()
+		vel_msg.linear.x = self.linear_vel(goal_pose, link_p, link_i, link_d)
+		vel_msg.angular.z = self.angular_vel(goal_pose, angk_p, angk_i, angk_d)
 
 		# feedback loop to keep sending control signal while distance > tolerance
 		while self.euclidean_distance(goal_pose) >= distance_tolerance:
@@ -118,10 +120,10 @@ class TurtleBot:
 
 			else:
 				# Linear velocity in the x-axis.
-				vel_msg.linear.x = self.linear_vel(goal_pose, link_p, link_i, link_d)
+				vel_msg.linear.x = 0.75*self.linear_vel(goal_pose, link_p, link_i, link_d) + 0.25*vel_msg.linear.x
 
 				# Angular velocity in the z-axis.
-				vel_msg.angular.z = self.angular_vel(goal_pose, angk_p, angk_i, angk_d)
+				vel_msg.angular.z = 0.75*self.angular_vel(goal_pose, angk_p, angk_i, angk_d)  + 0.25*vel_msg.angular.z 
 
 			# Publishing our vel_msg
 			self.velocity_publisher.publish(vel_msg)
