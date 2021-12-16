@@ -1,0 +1,6 @@
+<launch>
+	<node name = "robot1" pkg = "final_project" type = "robot1.py" output="screen"/>
+	<node name = "robot2" pkg = "final_project" type = "robot2follow.py" output="screen"/>
+	<node name = "robot3" pkg = "final_project" type = "robot3.py" output="screen"/>
+	<node name = "robot4" pkg = "final_project" type = "robot4follower.py" output="screen"/>
+</launch>
